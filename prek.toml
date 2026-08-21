@@ -1,0 +1,64 @@
+fail_fast = true
+
+# 1. Fast file-level checks and fixers (instant, fail early on basics)
+[[repos]]
+repo = "https://github.com/pre-commit/pre-commit-hooks"
+rev = "v6.0.0"
+hooks = [
+  { id = "check-added-large-files" },
+  { id = "check-case-conflict" },
+  { id = "check-executables-have-shebangs" },
+  { id = "check-json" },
+  { id = "check-merge-conflict" },
+  { id = "check-shebang-scripts-are-executable" },
+  { id = "check-symlinks" },
+  { id = "check-xml" },
+  { id = "check-yaml" },
+  { id = "detect-private-key" },
+  { id = "end-of-file-fixer" },
+  { id = "fix-byte-order-marker" },
+  { id = "mixed-line-ending", args = [
+    "--fix=lf",
+  ] },
+  # { id = "no-commit-to-branch", args = [
+  #   "--branch",
+  #   "main",
+  #   "--branch",
+  #   "master",
+  # ] },
+  { id = "pretty-format-json", args = [
+    "--autofix",
+    "--indent=2",
+  ], exclude = "frontend/.*" },
+  { id = "trailing-whitespace" },
+]
+
+# 2. Markdown lint (fast, only runs on .md files)
+[[repos]]
+repo = "https://github.com/igorshubovych/markdownlint-cli"
+rev = "v0.49.0"
+hooks = [{ id = "markdownlint", args = ["--fix"] }]
+
+# 3. Dockerfile lint
+[[repos]]
+repo = "https://github.com/hadolint/hadolint"
+rev = "v2.14.0"
+hooks = [{ id = "hadolint" }]
+
+# 4. Python lint + format
+[[repos]]
+repo = "https://github.com/astral-sh/ruff-pre-commit"
+rev = "v0.15.20"
+hooks = [{ id = "ruff-check", args = ["--fix"] }, { id = "ruff-format" }]
+
+# 5. Frontend lint + format (Biome for TypeScript/React)
+[[repos]]
+repo = "https://github.com/biomejs/pre-commit"
+rev = "v0.6.1"
+hooks = [{ id = "biome-check", additional_dependencies = ["@biomejs/biome@1.9.4"], args = ["--config-path=frontend"] }]
+
+# 6. Commit message lint (runs on commit-msg stage, not pre-commit)
+[[repos]]
+repo = "https://github.com/alessandrojcm/commitlint-pre-commit-hook"
+rev = "v9.26.0"
+hooks = [{ id = "commitlint", stages = ["commit-msg"], additional_dependencies = ["@commitlint/config-conventional"] }]

@@ -1,0 +1,10 @@
+services:
+  app:
+    build: .
+    container_name: lowenstein-viewer
+    restart: unless-stopped
+    ports:
+      - "3000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./sdcard:/app/sdcard:ro
