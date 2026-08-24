@@ -1,5 +1,10 @@
 # Lowenstein Prisma CPAP Viewer
 
+[![CI](https://github.com/frostyslav/lowenstein-prisma-viewer/actions/workflows/ci.yml/badge.svg)](https://github.com/frostyslav/lowenstein-prisma-viewer/actions/workflows/ci.yml)
+[![Publish Docker Image](https://github.com/frostyslav/lowenstein-prisma-viewer/actions/workflows/publish.yml/badge.svg)](https://github.com/frostyslav/lowenstein-prisma-viewer/actions/workflows/publish.yml)
+[![Docker Hub](https://img.shields.io/docker/v/frostyslav/lowenstein-prisma-viewer?logo=docker&label=Docker%20Hub&sort=semver)](https://hub.docker.com/r/frostyslav/lowenstein-prisma-viewer)
+[![License](https://img.shields.io/github/license/frostyslav/lowenstein-prisma-viewer)](LICENSE)
+
 A self-hosted web application for viewing therapy data from Lowenstein (formerly Weinmann) Prisma series CPAP (Continuous Positive Airway Pressure) machines. Single-user, runs in Docker, stores data in SQLite.
 
 ## Quick Start
