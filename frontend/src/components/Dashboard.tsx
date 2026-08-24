@@ -6,12 +6,41 @@ import {
   Legend,
   Line,
   LineChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
 import { useApi } from "../hooks/useApi";
+
+// Clinical thresholds for highlighting outliers.
+// AHI: <5 normal, 5-15 mild, 15-30 moderate, >30 severe.
+const AHI_MILD = 5;
+const AHI_MODERATE = 15;
+const AHI_SEVERE = 30;
+// Leak 95th percentile above this is considered a large leak (L/min).
+const LEAK_HIGH = 24;
+// Minimum recommended nightly usage (hours).
+const USAGE_MIN = 4;
+
+function ahiClass(ahi: number | null): string {
+  if (ahi === null) return "";
+  if (ahi >= AHI_SEVERE) return "text-red-700 font-semibold";
+  if (ahi >= AHI_MODERATE) return "text-red-600 font-medium";
+  if (ahi >= AHI_MILD) return "text-amber-600 font-medium";
+  return "text-green-600";
+}
+
+function leakClass(leak: number | null): string {
+  if (leak === null) return "";
+  return leak >= LEAK_HIGH ? "text-red-600 font-medium" : "";
+}
+
+function usageClass(hours: number | null): string {
+  if (hours === null) return "";
+  return hours < USAGE_MIN ? "text-amber-600 font-medium" : "";
+}
 
 interface NightSummary {
   id: number;
@@ -84,7 +113,31 @@ export function Dashboard() {
             />
             <YAxis tick={{ fontSize: 11 }} />
             <Tooltip />
-            <Line type="monotone" dataKey="ahi" stroke="#2563eb" strokeWidth={2} dot={false} />
+            <ReferenceLine
+              y={AHI_MILD}
+              stroke="#f59e0b"
+              strokeDasharray="4 4"
+              label={{ value: "mild", fontSize: 10, fill: "#f59e0b", position: "insideTopRight" }}
+            />
+            <ReferenceLine
+              y={AHI_MODERATE}
+              stroke="#dc2626"
+              strokeDasharray="4 4"
+              label={{
+                value: "moderate",
+                fontSize: 10,
+                fill: "#dc2626",
+                position: "insideTopRight",
+              }}
+            />
+            <Line
+              type="monotone"
+              dataKey="ahi"
+              stroke="#2563eb"
+              strokeWidth={2}
+              dot={<AhiDot />}
+              activeDot={{ r: 4 }}
+            />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -229,11 +282,15 @@ export function Dashboard() {
                       {n.date}
                     </Link>
                   </td>
-                  <td className="px-4 py-2 text-right">{n.therapy_hours ?? "–"}</td>
-                  <td className="px-4 py-2 text-right">{n.ahi ?? "–"}</td>
+                  <td className={`px-4 py-2 text-right ${usageClass(n.therapy_hours)}`}>
+                    {n.therapy_hours ?? "–"}
+                  </td>
+                  <td className={`px-4 py-2 text-right ${ahiClass(n.ahi)}`}>{n.ahi ?? "–"}</td>
                   <td className="px-4 py-2 text-right">{n.ai_central ?? "–"}</td>
                   <td className="px-4 py-2 text-right">{n.hi_central ?? "–"}</td>
-                  <td className="px-4 py-2 text-right">{n.leak_95 ?? "–"}</td>
+                  <td className={`px-4 py-2 text-right ${leakClass(n.leak_95)}`}>
+                    {n.leak_95 ?? "–"}
+                  </td>
                   <td className="px-4 py-2 text-right">{n.pressure_median ?? "–"}</td>
                 </tr>
               ))}
@@ -243,6 +300,23 @@ export function Dashboard() {
       </div>
     </div>
   );
+}
+
+interface DotProps {
+  cx?: number;
+  cy?: number;
+  value?: number;
+}
+
+// Render a colored dot only for nights whose AHI crosses a clinical threshold.
+function AhiDot({ cx, cy, value }: DotProps) {
+  if (cx === undefined || cy === undefined || value === undefined || value < AHI_MILD) {
+    return null;
+  }
+  let color = "#f59e0b";
+  if (value >= AHI_SEVERE) color = "#b91c1c";
+  else if (value >= AHI_MODERATE) color = "#dc2626";
+  return <circle cx={cx} cy={cy} r={4} fill={color} stroke="#fff" strokeWidth={1} />;
 }
 
 function StatCard({ label, value }: { label: string; value: string }) {
