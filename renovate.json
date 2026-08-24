@@ -1,0 +1,77 @@
+{
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":prHourlyLimit2",
+    ":prConcurrentLimit10"
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": [
+      "before 6am on monday"
+    ]
+  },
+  "packageRules": [
+    {
+      "description": "Group all non-major npm dev dependencies",
+      "groupName": "npm dev dependencies",
+      "matchDepTypes": [
+        "devDependencies"
+      ],
+      "matchManagers": [
+        "npm"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ]
+    },
+    {
+      "description": "Group GitHub Actions updates",
+      "groupName": "github-actions",
+      "matchManagers": [
+        "github-actions"
+      ]
+    },
+    {
+      "description": "Group Python (pip) minor and patch updates",
+      "groupName": "python dependencies",
+      "matchManagers": [
+        "pip_requirements"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ]
+    },
+    {
+      "automerge": true,
+      "description": "Automerge minor and patch updates for dev tooling",
+      "matchDepTypes": [
+        "devDependencies"
+      ],
+      "matchManagers": [
+        "npm"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ]
+    }
+  ],
+  "rangeStrategy": "pin",
+  "schedule": [
+    "before 6am on monday"
+  ],
+  "timezone": "UTC",
+  "vulnerabilityAlerts": {
+    "commitMessagePrefix": "fix(deps): ",
+    "labels": [
+      "security"
+    ]
+  }
+}
