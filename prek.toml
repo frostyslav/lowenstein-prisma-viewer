@@ -57,7 +57,13 @@ repo = "https://github.com/biomejs/pre-commit"
 rev = "v0.6.1"
 hooks = [{ id = "biome-check", additional_dependencies = ["@biomejs/biome@1.9.4"], args = ["--config-path=frontend"] }]
 
-# 6. Commit message lint (runs on commit-msg stage, not pre-commit)
+# 6. GitHub Actions workflow lint
+[[repos]]
+repo = "https://github.com/rhysd/actionlint"
+rev = "v1.7.12"
+hooks = [{ id = "actionlint" }]
+
+# 7. Commit message lint (runs on commit-msg stage, not pre-commit)
 [[repos]]
 repo = "https://github.com/alessandrojcm/commitlint-pre-commit-hook"
 rev = "v9.26.0"
