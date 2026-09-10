@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from .database import Base, engine
-from .routers import device, nights, scan, signals, upload
+from .routers import device, metrics, nights, scan, signals, upload
 
 # Create all tables on startup
 Base.metadata.create_all(bind=engine)
@@ -33,6 +33,7 @@ app.include_router(scan.router)
 app.include_router(signals.router)
 app.include_router(nights.router)
 app.include_router(device.router)
+app.include_router(metrics.router)
 
 
 @app.get("/api/health")
