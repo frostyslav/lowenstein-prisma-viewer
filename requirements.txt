@@ -4,3 +4,4 @@ sqlalchemy==2.0.36
 aiosqlite==0.20.0
 python-multipart==0.0.19
 defusedxml==0.7.1
+prometheus-client==0.26.0
