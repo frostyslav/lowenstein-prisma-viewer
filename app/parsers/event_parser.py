@@ -104,7 +104,8 @@ class SessionParseResult:
 
     events: list[RespEvent]
     epochs: EpochSummary
-    session_duration_ds: int  # From RespEventID 231
+    session_duration_ds: int  # From RespEventID 231 (unreliable on newer firmware)
+    max_end_time_ds: int = 0  # Largest EndTime seen across all RespEvents
 
 
 def _accumulate_epoch(epochs: EpochSummary, event_id: int, duration: int) -> None:
@@ -130,6 +131,7 @@ def parse_event_xml(content: bytes) -> SessionParseResult:
     events: list[RespEvent] = []
     epochs = EpochSummary()
     session_duration_ds = 0
+    max_end_time_ds = 0
 
     for elem in root.findall("RespEvent"):
         event_id = int(elem.get("RespEventID", "0"))
@@ -138,6 +140,11 @@ def parse_event_xml(content: bytes) -> SessionParseResult:
         pressure = int(elem.get("Pressure", "0"))
         strength_str = elem.get("Strength")
         strength = int(strength_str) if strength_str is not None else None
+
+        # Track the furthest point in the session. Newer firmware (3.17.x)
+        # no longer reports the whole-night length in the id-231 marker, so the
+        # largest EndTime across all events is the reliable session span.
+        max_end_time_ds = max(max_end_time_ds, end_time)
 
         # Accumulate epoch durations
         if event_id in EPOCH_EVENT_IDS:
@@ -167,8 +174,14 @@ def parse_event_xml(content: bytes) -> SessionParseResult:
                 ),
             )
 
+    # On older firmware the id-231 marker holds the full session duration.
+    # On newer firmware it is a short per-window marker, so fall back to the
+    # largest observed EndTime whenever that is longer.
+    session_duration_ds = max(session_duration_ds, max_end_time_ds)
+
     return SessionParseResult(
         events=events,
         epochs=epochs,
         session_duration_ds=session_duration_ds,
+        max_end_time_ds=max_end_time_ds,
     )
